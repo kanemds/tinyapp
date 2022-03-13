@@ -69,16 +69,18 @@ app.get("/urls", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   let redirectUrl = '/urls';
-  console.log(req.params);
   if (req.params.shortURL && urlDatabase[req.params.shortURL]) {
     redirectUrl = urlDatabase[req.params.shortURL];
   }
-  
   res.status(302).redirect(redirectUrl);
-  
 });
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+app.post('/urls/:shortURL/delete', (req, res) => {
+  const url = req.params.shortURL;
+  delete urlDatabase[url];
+  res.redirect('/urls');
+});
