@@ -44,7 +44,6 @@ app.post('logout', (req, res) => {
   res.redirect('/');
 });
 
-
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -75,6 +74,12 @@ app.get("/u/:shortURL", (req, res) => {
   res.status(302).redirect(redirectUrl);
 });
 
+app.get("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  const templateVars = { longURL:urlDatabase[shortURL],shortURL };
+  res.render("urls_show", templateVars);
+});
+
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
@@ -84,3 +89,10 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   delete urlDatabase[url];
   res.redirect('/urls');
 });
+
+app.post("/urls/:shortURL", (req, res) => {
+  const url = req.params.shortURL;
+  urlDatabase[url] = req.body.longURL;
+  res.redirect('/urls');
+});
+
