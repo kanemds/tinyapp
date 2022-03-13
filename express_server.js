@@ -2,8 +2,14 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser');
+const morgan = require('morgan');
+
 app.use(bodyParser.urlencoded({extended:true}));
 app.set("view engine", "ejs");
+app.use(morgan('dev')); // terminal will tell us time user connect to server exsample: GET /urls 304 1.657 ms
+app.use(cookieParser());
+
 
 const generateRandomString = () => {
   const string = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -15,7 +21,6 @@ const generateRandomString = () => {
   return url;
 };
 
-console.log(generateRandomString());
 
 
 const urlDatabase = {
@@ -24,8 +29,19 @@ const urlDatabase = {
 };
 
 app.post("/urls", (req, res) => {
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
   console.log(req.body);  // Log the POST request body to the console
   res.send("Ok");         // Respond with 'Ok' (we will replace this)
+});
+
+app.post('/login', (req, res) => {
+  res.render('login');
+});
+
+app.post('logout', (req, res) => {
+  res.clearCookie('user');
+  res.redirect('/');
 });
 
 
@@ -51,16 +67,18 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: req.params.longURL
-  };
-  res.render("urls_show", templateVars);
+app.get("/u/:shortURL", (req, res) => {
+  let redirectUrl = '/urls';
+  console.log(req.params);
+  if (req.params.shortURL && urlDatabase[req.params.shortURL]) {
+    redirectUrl = urlDatabase[req.params.shortURL];
+  }
+  
+  res.status(302).redirect(redirectUrl);
+  
 });
-
-
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
+
