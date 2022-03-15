@@ -4,7 +4,6 @@ const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
-const { use } = require("express/lib/application");
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.set("view engine", "ejs");
