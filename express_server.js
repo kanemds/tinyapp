@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const morgan = require('morgan');
 const bcrypt = require('bcryptjs');
+const { getUserByEmail } = require('./helpers');
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.set("view engine", "ejs");
@@ -31,15 +32,6 @@ const users = {
     password: bcrypt.hashSync("dishwasher-funk", 10)
   }
 };
-
-const getUserByEmail = (email) => {
-  for (const id in users) {
-    if (users[id].email === email) {
-      return users[id];
-    }
-  }
-};
-
 
 const generateRandomString = () => {
   const string = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -206,7 +198,7 @@ app.post('/register', (req, res) => {
   if (!email || !password) {
     return res.status(400).send("email and password can't be empty ");
   }
-  const existingUser = getUserByEmail(email);
+  const existingUser = getUserByEmail(email, users);
   if (existingUser) {
     return res.status(400).send("user already exist");
   }
