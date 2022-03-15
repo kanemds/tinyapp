@@ -48,7 +48,12 @@ const urlDatabase = {
 
 app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const templateVars = { longURL:urlDatabase[shortURL],shortURL };
+  const userId = req.cookies["user_id"];
+  const templateVars = {
+    user: users[userId] ? users[userId] : undefined,
+    longURL:urlDatabase[shortURL],
+    shortURL
+  };
   res.render("urls_show", templateVars);
 });
 
@@ -75,8 +80,9 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
   const userId = req.cookies["user_id"];
   const templateVars = {
-    username: users[userId] ? users[userId].email : undefined,
-    urls:urlDatabase };
+    user: users[userId] ? users[userId] : undefined,
+    urls:urlDatabase
+  };
   res.render("urls_index", templateVars);
 });
 
@@ -99,8 +105,9 @@ app.get("/u/:shortURL", (req, res) => {
 
 
 app.get('/login', (req, res) => {
+  const userId = req.cookies["user_id"];
   const templateVars = {
-    username: req.cookies["username"]
+    user: users[userId] ? users[userId] : undefined,
   };
   res.render('/partials/_header',templateVars);
 });
