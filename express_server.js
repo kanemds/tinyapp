@@ -4,6 +4,7 @@ const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
+const bcrypt = require('bcryptjs');
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.set("view engine", "ejs");
@@ -17,12 +18,12 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: bcrypt.hashSync("purple-monkey-dinosaur", 10)
   },
   "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: bcrypt.hashSync("dishwasher-funk", 10)
   }
 };
 
@@ -170,7 +171,7 @@ app.post('/login', (req, res) => {
   const { email, password } = req.body;
   let userId;
   for (const id in users) {
-    if (users[id].email === email && users[id].password === password) {
+    if (users[id].email === email && bcrypt.compareSync(password, users[id].password)) {
       userId = id;
     }
   }
@@ -204,7 +205,11 @@ app.post('/register', (req, res) => {
   }
   const id = generateRandomString();
   
-  users[id] = {id,email,password};
+  users[id] = {
+    id,
+    email,
+    password: bcrypt.hashSync(password, 10)
+  };
   res.cookie('users',{id: users.id, name: users.name});
   res.redirect('/urls');
 });
