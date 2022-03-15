@@ -27,6 +27,14 @@ const users = {
   }
 };
 
+const getUserByEmail = (email) => {
+  for (const id in users) {
+    if (users[id].email === email) {
+      return users[id];
+    }
+  }
+};
+
 
 const generateRandomString = () => {
   const string = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -108,15 +116,16 @@ app.get('/login', (req, res) => {
   const userId = req.cookies["user_id"];
   const templateVars = {
     user: users[userId] ? users[userId] : undefined,
+    buttonName: 'Login'
   };
-  res.render('/partials/_header',templateVars);
+  res.render('login',templateVars);
 });
 
 app.post('/login', (req, res) => {
-  const { username } = req.body;
+  const { email, password } = req.body;
   let userId;
   for (const id in users) {
-    if (users[id].email === username) {
+    if (users[id].email === email && users[id].password === password) {
       userId = id;
     }
   }
@@ -130,7 +139,12 @@ app.post('/logout', (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  res.render("partials/register");
+  const userId = req.cookies["user_id"];
+  const templateVars = {
+    user: users[userId] ? users[userId] : undefined,
+    buttonName: 'Register'
+  };
+  res.render("register", templateVars);
 });
 
 app.post('/register', (req, res) => {
@@ -138,6 +152,10 @@ app.post('/register', (req, res) => {
   const password = req.body.password;
   if (!email || !password) {
     return res.status(400).send("email and password can't be empty ");
+  }
+  const existingUser = getUserByEmail(email);
+  if (existingUser) {
+    return res.status(400).send("user already exist");
   }
   const id = generateRandomString();
   
